@@ -1,0 +1,15 @@
+R A/0 B/0
+A C/0 D/0    
+B E/0 F/0    
+C G/0 H/0    
+D I/0 J/0    
+E K/0 L/0    
+F M/0 N/0    
+G G/0 H/0    
+H I/0 J/0    
+I I/0 I/0    
+J M/0 N/0    
+K G/1 H/1    
+L I/0 J/0    
+M K/0 L/0    
+N M/0 N/0    
