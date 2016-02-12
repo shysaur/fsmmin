@@ -1,6 +1,7 @@
 
 #include "fsm.h"
 #include <vector>
+#include <set>
 #include <utility>
 
 using namespace std;
@@ -22,7 +23,7 @@ enum {
 class equivedge {
 public:
   int state;
-  vector< pair<int, int> > constraints;
+  set< set<int> > constraints;
   equivedge(void) {
     state = e_unknown;
   }

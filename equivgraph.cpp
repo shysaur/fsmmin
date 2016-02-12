@@ -87,7 +87,10 @@ int equivgraph::paullUnger_(int s0, int s1, bool partial)
       return equiv[s0][s1].state = equiv[s1][s0].state = e_incompatible;
     if (r == e_compatible) {
       f = e_compatible;
-      equiv[s0][s1].constraints.push_back(pair<int, int>(n0, n1));
+      set<int> c;
+      c.insert(n0);
+      c.insert(n1);
+      equiv[s0][s1].constraints.insert(c);
     }
   }
   equiv[s1][s0].constraints = equiv[s0][s1].constraints;
@@ -146,22 +149,33 @@ void equivgraph::printEquivTable(ostream& s)
 
 void equivgraph::printEquivTableNeato(ostream& s) 
 {
-  int i, j, k;
+  int i, j;
   
   s << "graph G {\n";
   for (i=1; i<machine.states.size(); i++) {
     for (j=0; j<i; j++) {
       if (equiv[i][j].state != e_incompatible) {
         s << machine.states[i].label << " -- " << machine.states[j].label;
+        
         if (equiv[i][j].state == e_compatible) {
           s << " [label=\"";
-          for (k=0; k<equiv[i][j].constraints.size(); k++) {
-            s << "(" << machine.states[equiv[i][j].constraints[k].first].label;
-            s << "," << machine.states[equiv[i][j].constraints[k].second].label;
+          
+          set< set<int> >::iterator k = equiv[i][j].constraints.begin();
+          for (; k!=equiv[i][j].constraints.end(); k++) {
+            s << "(";
+            
+            set<int>::iterator l = (*k).begin();
+            for (; l!=(*k).end(); l++) {
+              if (l != (*k).begin())
+                s << ",";
+              s << machine.states[*l].label;
+            }
+            
             s << ")\\n";
           }
           s << "\"]";
         }
+        
         s << ";\n";
       }
     }
