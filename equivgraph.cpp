@@ -113,6 +113,53 @@ void equivgraph::paullUnger(void)
 }
 
 
+void equivgraph::bronKerbosch(set< set<int> >& cliq, set<int> r, set<int> p, set<int> x) const
+{
+  int i, v;
+  
+  if (p.size() == 0 && x.size() == 0) {
+    cliq.insert(r);
+    return;
+  }
+  
+  while (p.size() > 0) {
+    v = *(p.begin());
+    
+    set<int> newr = r;
+    newr.insert(v);
+    
+    set<int> newx = x;
+    set<int> newp = p;
+    for (i=0; i<machine.states.size(); i++) {
+      if (equiv[v][i].state == e_incompatible || v == i) {
+        newp.erase(i);
+        newx.erase(i);
+      }
+    }
+    
+    bronKerbosch(cliq, newr, newp, newx);
+    
+    p.erase(p.begin());
+    x.insert(v);
+  }
+}
+
+
+set< set<int> > equivgraph::maximalClasses(void)
+{
+  set<int> p;
+  int i;
+  
+  if (cliquesCache.size() > 0)
+    return cliquesCache;
+  
+  for (i=0; i<machine.states.size(); i++) 
+    p.insert(i);
+  bronKerbosch(cliquesCache, set<int>(), p, set<int>());
+  return cliquesCache;
+}
+
+
 void equivgraph::printEquivTable(ostream& s) const
 {
   int i, j, w, tw;

@@ -35,11 +35,14 @@ public:
   fsm machine;
   vector< vector<equivedge> > equiv;
   equivgraph(fsm& m);
+  set< set<int> > maximalClasses(void);
   void printEquivTable(ostream& s) const;
   void printEquivTableNeato(ostream& s) const;
 private:
+  set< set<int> > cliquesCache;
   int paullUnger_(int s0, int s1, bool partial);
   void paullUnger(void);
+  void bronKerbosch(set< set<int> >& cliq, set<int> r, set<int> p, set<int> x) const;
 };
 
 
