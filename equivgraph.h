@@ -35,8 +35,8 @@ public:
   fsm machine;
   vector< vector<equivedge> > equiv;
   equivgraph(fsm& m);
-  void printEquivTable(ostream& s);
-  void printEquivTableNeato(ostream& s);
+  void printEquivTable(ostream& s) const;
+  void printEquivTableNeato(ostream& s) const;
 private:
   int paullUnger_(int s0, int s1, bool partial);
   void paullUnger(void);

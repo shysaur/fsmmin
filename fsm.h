@@ -24,8 +24,8 @@ public:
   bool partial;
   int numnext;
   fsm(istream& s);
-  void printFsm(ostream& s);
-  void printFsmDot(ostream& s);
+  void printFsm(ostream& s) const;
+  void printFsmDot(ostream& s) const;
 };
 
 

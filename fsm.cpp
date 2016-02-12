@@ -108,7 +108,7 @@ fsm::fsm(istream& s)
 }
 
 
-void fsm::printFsm(ostream& s)
+void fsm::printFsm(ostream& s) const
 {
   int i, j;
   
@@ -127,7 +127,7 @@ void fsm::printFsm(ostream& s)
 }
 
 
-void fsm::printFsmDot(ostream& s)
+void fsm::printFsmDot(ostream& s) const
 {
   int i, j, k;
   

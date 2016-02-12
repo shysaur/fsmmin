@@ -113,7 +113,7 @@ void equivgraph::paullUnger(void)
 }
 
 
-void equivgraph::printEquivTable(ostream& s)
+void equivgraph::printEquivTable(ostream& s) const
 {
   int i, j, w, tw;
   int maxw;
@@ -147,7 +147,7 @@ void equivgraph::printEquivTable(ostream& s)
 }
 
 
-void equivgraph::printEquivTableNeato(ostream& s) 
+void equivgraph::printEquivTableNeato(ostream& s) const 
 {
   int i, j;
   
