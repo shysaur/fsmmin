@@ -25,6 +25,8 @@ void usage(char *me) {
   "  -g --graphviz           Output the equivalent states graph and the FSMs\n"
   "                          in graphviz format (otherwise they are output as\n"
   "                          tables).\n"
+  "  -o --output=<file>      Write output to <file>. Logs are always output on\n"
+  "                          stdout.\n"
   "  -h --help               Display this help and exit.\n\n"
   "Finite State Machine Reduction Methods:\n"
   "  max [default]   The new states correspond to one maximal compatibility\n"
@@ -58,12 +60,14 @@ int main(int argc, char *argv[]) {
     {"max-classes",   no_argument,       NULL,     'c'},
     {"prime-classes", no_argument,       &pprime,    1},
     {"verbose",       no_argument,       NULL,     'v'},
+    {"output",        required_argument, NULL,     'o'},
     {"help",          no_argument,       NULL,     'h'},
     {NULL,            0,                 NULL,       0}
   };
   
   int c;
-  while ((c = getopt_long(argc, argv, "itcr::vgh", longopts, NULL)) != -1) {
+  ostream *fout = &cout;
+  while ((c = getopt_long(argc, argv, "itcr::vgho:", longopts, NULL)) != -1) {
     switch (c) {
       case 0:
         break;
@@ -95,6 +99,18 @@ int main(int argc, char *argv[]) {
       case 'v':
         verb = 1;
         break;
+      case 'o':
+        if (optarg) {
+          fout = new fstream(optarg, ifstream::out);
+          if (!fout || fout->rdstate() != 0) {
+            cout << "Unable to open " << optarg << ".\n";
+            return 1;
+          }
+        } else {
+          cout << "Output file not specified.\n";
+          return 1;
+        }
+        break;
       case 'h':
         usage(argv[0]);
         return 0;
@@ -112,7 +128,7 @@ int main(int argc, char *argv[]) {
   
   istream *fin;
   if (argc > 0) {
-    fin = new ifstream(argv[optind], ifstream::in);
+    fin = new fstream(argv[optind], ifstream::in);
     if (!fin || fin->rdstate() != 0) {
       cout << "Unable to open " << argv[optind] << ".\n";
       return 1;
@@ -130,46 +146,45 @@ int main(int argc, char *argv[]) {
   
   if (pfsm) {
     if (graphviz)
-      infsm->printFsmDot(cout);
+      infsm->printFsmDot(*fout);
     else
-      infsm->printFsm(cout);
+      infsm->printFsm(*fout);
   }
-  if (!(pequiv || prfsm || pmax || pprime))
-    return 0;
-    
-  equivgraph equiv(*infsm);
+  if (pequiv || pmax || pprime) {
+    equivgraph equiv(*infsm);
   
-  if (pequiv) {
-    if (graphviz)
-      equiv.printEquivTableNeato(cout);
-    else
-      equiv.printEquivTable(cout);
-  }
-  
-  if (pmax) {
-    set<equivalence> d = equiv.maximalClasses();
-    int j = 1;
-    for (set<equivalence>::iterator i=d.begin(); i!=d.end(); i++) {
-      cout << "maxclass " << j << " = " << *i;
-      if (verb) {
-        cout << " coalesced constraints=";
-        cout << formatSetOfClasses((*i).coalescedConstraints(), *infsm);
-      }
-      cout << '\n';
-      j++;
+    if (pequiv) {
+      if (graphviz)
+        equiv.printEquivTableNeato(*fout);
+      else
+        equiv.printEquivTable(*fout);
     }
-  }
-  if (pprime) {
-    set<equivalence> d = equiv.primitiveClasses();
-    int j = 1;
-    for (set<equivalence>::iterator i=d.begin(); i!=d.end(); i++) {
-      cout << "primeclass " << j << " = " << *i;
-      if (verb) {
-        cout << " coalesced constraints=";
-        cout << formatSetOfClasses((*i).coalescedConstraints(), *infsm);
+  
+    if (pmax) {
+      set<equivalence> d = equiv.maximalClasses();
+      int j = 1;
+      for (set<equivalence>::iterator i=d.begin(); i!=d.end(); i++) {
+        *fout << "maxclass " << j << " = " << *i;
+        if (verb) {
+          *fout << " coalesced constraints=";
+          *fout << formatSetOfClasses((*i).coalescedConstraints(), *infsm);
+        }
+        *fout << '\n';
+        j++;
       }
-      cout << '\n';
-      j++;
+    }
+    if (pprime) {
+      set<equivalence> d = equiv.primitiveClasses();
+      int j = 1;
+      for (set<equivalence>::iterator i=d.begin(); i!=d.end(); i++) {
+        *fout << "primeclass " << j << " = " << *i;
+        if (verb) {
+          *fout << " coalesced constraints=";
+          *fout << formatSetOfClasses((*i).coalescedConstraints(), *infsm);
+        }
+        *fout << '\n';
+        j++;
+      }
     }
   }
   
@@ -180,10 +195,18 @@ int main(int argc, char *argv[]) {
     else
       newfsm = minimizedFsmFromPrimitiveClasses(*infsm, verb);
     if (graphviz)
-      newfsm.printFsmDot(cout);
+      newfsm.printFsmDot(*fout);
     else
-      newfsm.printFsm(cout);
+      newfsm.printFsm(*fout);
   }
-  
+
+  if (fout != &cout) {
+    ((fstream*)fout)->close();
+    delete(fout);
+  }
+  if (fin != &cin) {
+    ((fstream*)fin)->close();
+    delete(fin);
+  }
   return 0;
 }
