@@ -181,13 +181,13 @@ int equivgraph::paullUnger_(int s0, int s1, bool partial)
     r = paullUnger_(n0, n1, anyundef);
     if (r == e_incompatible)
       return equiv[s0][s1].state = equiv[s1][s0].state = e_incompatible;
-    if (r == e_compatible) {
+    if (r == e_compatible)
       f = e_compatible;
-      set<int> c;
-      c.insert(n0);
-      c.insert(n1);
+    set<int> c;
+    c.insert(n0);
+    c.insert(n1);
+    if (c.size() > 1 && !((n0 == s0 && n1 == s1) || (n0 == s1 && n1 == s0)))
       equiv[s0][s1].constraints.insert(c);
-    }
   }
   equiv[s1][s0].constraints = equiv[s0][s1].constraints;
   
