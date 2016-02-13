@@ -6,6 +6,20 @@
 using namespace std;
 
 
+string stateName(int i)
+{
+  string res;
+  int c;
+
+  while (i >= 0) {
+    c = i % ('z'-'a'+1);
+    i = i / ('z'-'a'+1) - 1;
+    res = (char)('a' + c) + res;
+  }
+  return res;
+}
+
+
 fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl) 
 {
   fsm newfsm;
@@ -14,7 +28,7 @@ fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl)
   
   for (int i=0; i<selCl.size(); i++) {
     fsmstate state;
-    state.label.push_back('a'+i);
+    state.label = stateName(i);
     for (int j=0; j<newfsm.numnext; j++) {
       set<int> go;
       bool gound = true;
