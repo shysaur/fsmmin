@@ -1,5 +1,6 @@
 
 #include "fsm.h"
+#include <strstream>
 
 
 string formatSetOfStates(const set<int>& s, const fsm& m)
@@ -32,6 +33,7 @@ string formatSetOfClasses(const set< set<int> >& s, const fsm& m)
 
 fsm::fsm(istream& s)
 {
+  strstream estr;  
   vector< vector<string> > tmpnexts;
   int c, olen = 0;
   
@@ -45,12 +47,16 @@ fsm::fsm(istream& s)
     } while ((isblank(c) || c == '\n') && c != EOF);
     if (c == EOF || !isalnum(c))
       break;
+    if (c == '\n')
+      continue;
     do {
       cstate.label += c;
       c = s.get();
     } while (isalnum(c) && c != EOF);
-    if (c == EOF)
-      throw("Expected label.");
+    if (c == EOF) {
+      estr << "Expected label in line " << i+1;
+      throw runtime_error(estr.str());
+    }
     
     tmpnexts.push_back(vector<string>(0));
     for (int j=0; ; j++) {
@@ -60,15 +66,19 @@ fsm::fsm(istream& s)
       while (isblank(c) && c != EOF) {
         c = s.get(); 
       }
-      if (c == EOF || !(isalnum(c) || c == '-'))
-        throw("Expected label.");
+      if (c == EOF || !(isalnum(c) || c == '-')) {
+        estr << "Expected label in line " << i+1;
+        throw runtime_error(estr.str());
+      }
       if (c != '-') {
         do {
           nextl += c;
           c = s.get();
         } while (isalnum(c) && c != EOF);
-        if (c == EOF)
-          throw("Expected label or -.");
+        if (c == EOF) {
+          estr << "Expected label or - in line " << i+1;
+          throw runtime_error(estr.str());
+        }
       } else {
         nextl = c;
         c = s.get();
@@ -78,14 +88,18 @@ fsm::fsm(istream& s)
       while (isblank(c) && c != EOF) {
         c = s.get(); 
       } 
-      if (c != '/')
-        throw("Expected '/'.");
+      if (c != '/') {
+        estr << "Expected '/' in line " << i+1;
+        throw runtime_error(estr.str());
+      }
       
       do {
         c = s.get();
       } while (isblank(c) && c != EOF);
-      if (c == EOF || !(isdigit(c) || c == '-'))
-        throw("Expected a string of numbers and -.");
+      if (c == EOF || !(isdigit(c) || c == '-')) {
+        estr << "Expected a string of numbers and - in line " << i+1;
+        throw runtime_error(estr.str());
+      }
       do {
         out += c;
         if (c == '-')
@@ -94,8 +108,10 @@ fsm::fsm(istream& s)
       } while ((isdigit(c) || c == '-') && c != EOF);
       if (olen == 0)
         olen = out.length();
-      else if (olen != out.length())
-        throw("All output strings must be the same length.");
+      else if (olen != out.length()) {
+        estr << "Output string of the wrong length in line " << i+1;
+        throw runtime_error(estr.str());
+      }
       cstate.out.push_back(out);
       
       while (isblank(c) && c != EOF) {
@@ -104,8 +120,10 @@ fsm::fsm(istream& s)
       if (c == '\n' || c == EOF) {
         if (i == 0)
           numnext = j+1;
-        else if (j+1 != numnext)
-          throw("All states must have the same amount of transitions.");
+        else if (j+1 != numnext) {
+          estr << "Machine state at line " << i+1 << " has too many transitions.";
+          throw runtime_error(estr.str());
+        }
         break;
       }
     }
@@ -127,8 +145,10 @@ fsm::fsm(istream& s)
             break;
           }
         }
-        if (k == states.size())
-          throw("Unknown label");
+        if (k == states.size()) {
+          estr << "Undefined label \"" << tmpnexts[i][j] << "\"";
+          throw runtime_error(estr.str());
+        }
       }
     }
   }

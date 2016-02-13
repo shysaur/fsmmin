@@ -13,8 +13,8 @@ int main(int argc, char *argv[]) {
   
   try {
     infsm = new fsm(cin);
-  } catch (const char *e) {
-    cout << e << '\n';
+  } catch (exception& e) {
+    cout << e.what() << '\n';
     return 1;
   }
   
