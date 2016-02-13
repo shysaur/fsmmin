@@ -20,6 +20,26 @@ enum {
 };
 
 
+class equivgraph;
+
+
+class equivalence {
+public:
+  set<int> states;
+  set< set<int> > constraints;
+  equivalence(const equivgraph& graph, set<int> newstates);
+  void add(int newstate);
+  void add(set<int> newstates);
+  friend inline bool operator< (const equivalence& lhs, const equivalence& rhs) 
+    { return lhs.states < rhs.states; }
+  friend inline bool operator==(const equivalence& lhs, const equivalence& rhs) 
+    { return lhs.states == rhs.states; }
+  friend ostream& operator<<(ostream& os, const equivalence& obj);
+private:
+  const equivgraph& graph;
+};
+
+
 class equivedge {
 public:
   int state;
@@ -35,14 +55,14 @@ public:
   fsm machine;
   vector< vector<equivedge> > equiv;
   equivgraph(fsm& m);
-  set< set<int> > maximalClasses(void);
+  set< equivalence > maximalClasses(void);
   void printEquivTable(ostream& s) const;
   void printEquivTableNeato(ostream& s) const;
 private:
-  set< set<int> > cliquesCache;
+  set<equivalence> cliquesCache;
   int paullUnger_(int s0, int s1, bool partial);
   void paullUnger(void);
-  void bronKerbosch(set< set<int> >& cliq, set<int> r, set<int> p, set<int> x) const;
+  void bronKerbosch(set<equivalence>& cliq, set<int> r, set<int> p, set<int> x) const;
 };
 
 

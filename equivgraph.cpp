@@ -11,6 +11,91 @@
 #define COMPATIBLE   (2)
 
 
+equivalence::equivalence(const equivgraph& graph, set<int> newstates) : graph(graph)
+{
+  add(newstates);
+}
+
+
+void equivalence::add(set<int> newstates)
+{
+  set<int>::iterator i = newstates.begin();
+  for (; i!=newstates.end(); i++) {
+    add(*i);
+  }
+}
+
+
+void equivalence::add(int newstate)
+{
+  set<int>::iterator i = states.begin();
+  for (; i!=states.end(); i++) {
+    if (graph.equiv[newstate][*i].state == e_incompatible)
+      throw;
+    if (graph.equiv[newstate][*i].state == e_compatible) {
+      constraints.insert(graph.equiv[newstate][*i].constraints.begin(), 
+                         graph.equiv[newstate][*i].constraints.end());
+    }
+  }
+  
+  states.insert(newstate);
+  
+  vector< set< set<int> >::iterator > toremove;
+  set< set<int> >::iterator j = constraints.begin();
+  for (; j!=constraints.end(); j++) {
+    bool allin = true;
+    set<int>::iterator k = (*j).begin();
+    for (; k!=(*j).end(); k++) {
+      if (states.find(*k) == states.end()) {
+        allin = false;
+        break;
+      }
+    }
+    if (allin)
+      toremove.push_back(j);
+  }
+  
+  int k;
+  for (k=0; k<toremove.size(); k++) {
+    constraints.erase(toremove[k]);
+  }
+}
+
+
+ostream& operator<<(ostream& os, const equivalence& obj)
+{
+  os << "(";
+  
+  set<int>::iterator i = obj.states.begin();
+  for (; i!=obj.states.end(); i++) {
+    if (i != obj.states.begin())
+      os << ",";
+    os << obj.graph.machine.states[*i].label;
+  }
+  
+  if (obj.constraints.size() > 0) {
+    os << "; constraints=(";
+    
+    set< set<int> >::iterator i = obj.constraints.begin();
+    for (; i!=obj.constraints.end(); i++) {
+      if (i != obj.constraints.begin())
+        os << ",";
+      os << "(";
+      set<int>::iterator j = (*i).begin();
+      for (; j!=(*i).end(); j++) {
+        if (j != (*i).begin())
+          os << ",";
+        os << obj.graph.machine.states[*j].label;
+      }
+      os << ")";
+    }
+    os << ")";
+  }
+  os << ")";
+  return os;
+}
+
+
 equivgraph::equivgraph(fsm& m) : machine(m)
 {
   equiv = vector< vector<equivedge> >(m.states.size(), vector<equivedge>(m.states.size()));
@@ -113,12 +198,13 @@ void equivgraph::paullUnger(void)
 }
 
 
-void equivgraph::bronKerbosch(set< set<int> >& cliq, set<int> r, set<int> p, set<int> x) const
+void equivgraph::bronKerbosch(set<equivalence>& cliq, set<int> r, set<int> p, set<int> x) const
 {
   int i, v;
   
   if (p.size() == 0 && x.size() == 0) {
-    cliq.insert(r);
+    equivalence e(*this, r);
+    cliq.insert(e);
     return;
   }
   
@@ -145,7 +231,7 @@ void equivgraph::bronKerbosch(set< set<int> >& cliq, set<int> r, set<int> p, set
 }
 
 
-set< set<int> > equivgraph::maximalClasses(void)
+set< equivalence > equivgraph::maximalClasses(void)
 {
   set<int> p;
   int i;
