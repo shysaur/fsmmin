@@ -47,36 +47,28 @@ void equivalence::add(set<int> newstates)
 
 void equivalence::add(int newstate)
 {
-  set<int>::iterator i = states.begin();
-  for (; i!=states.end(); i++) {
+  for (set<int>::iterator i = states.begin(); i!=states.end(); i++) {
     if (graph.equiv[newstate][*i].state == e_incompatible)
       throw;
-    if (graph.equiv[newstate][*i].state == e_compatible) {
-      constraints.insert(graph.equiv[newstate][*i].constraints.begin(), 
-                         graph.equiv[newstate][*i].constraints.end());
-    }
+    constraints.insert(graph.equiv[newstate][*i].constraints.begin(), 
+                       graph.equiv[newstate][*i].constraints.end());
   }
   
   states.insert(newstate);
   
-  vector< set< set<int> >::iterator > toremove;
-  set< set<int> >::iterator j = constraints.begin();
-  for (; j!=constraints.end(); j++) {
+  for (set< set<int> >::iterator j = constraints.begin(); j!=constraints.end(); ) {
     bool allin = true;
-    set<int>::iterator k = (*j).begin();
-    for (; k!=(*j).end(); k++) {
+    
+    for (set<int>::iterator k = (*j).begin(); k!=(*j).end(); k++) {
       if (states.find(*k) == states.end()) {
         allin = false;
         break;
       }
     }
     if (allin)
-      toremove.push_back(j);
-  }
-  
-  int k;
-  for (k=0; k<toremove.size(); k++) {
-    constraints.erase(toremove[k]);
+      constraints.erase(j++);
+    else
+      j++;
   }
 }
 
@@ -341,27 +333,22 @@ void equivgraph::printEquivTableNeato(ostream& s) const
     for (j=0; j<i; j++) {
       if (equiv[i][j].state != e_incompatible) {
         s << machine.states[i].label << " -- " << machine.states[j].label;
+        s << " [label=\"";
         
-        if (equiv[i][j].state == e_compatible) {
-          s << " [label=\"";
+        set< set<int> >::iterator k = equiv[i][j].constraints.begin();
+        for (; k!=equiv[i][j].constraints.end(); k++) {
+          s << "(";
           
-          set< set<int> >::iterator k = equiv[i][j].constraints.begin();
-          for (; k!=equiv[i][j].constraints.end(); k++) {
-            s << "(";
-            
-            set<int>::iterator l = (*k).begin();
-            for (; l!=(*k).end(); l++) {
-              if (l != (*k).begin())
-                s << ",";
-              s << machine.states[*l].label;
-            }
-            
-            s << ")\\n";
+          set<int>::iterator l = (*k).begin();
+          for (; l!=(*k).end(); l++) {
+            if (l != (*k).begin())
+              s << ",";
+            s << machine.states[*l].label;
           }
-          s << "\"]";
+          
+          s << ")\\n";
         }
-        
-        s << ";\n";
+        s << "\"];\n";
       }
     }
   }
