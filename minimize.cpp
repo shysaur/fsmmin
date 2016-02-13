@@ -3,6 +3,8 @@
 #import <set>
 #import <vector>
 
+using namespace std;
+
 
 fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl) 
 {

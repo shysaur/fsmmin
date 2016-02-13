@@ -4,8 +4,6 @@
 #include <set>
 #include <utility>
 
-using namespace std;
-
 
 #ifndef EQUIVGRAPH_H
 #define EQUIVGRAPH_H
@@ -25,18 +23,18 @@ class equivgraph;
 
 class equivalence {
 public:
-  set<int> states;
-  set< set<int> > constraints;
-  set< set<int> > coalescedConstraints(void) const;
-  equivalence(const equivgraph& graph, set<int> newstates);
+  std::set<int> states;
+  std::set< std::set<int> > constraints;
+  std::set< std::set<int> > coalescedConstraints(void) const;
+  equivalence(const equivgraph& graph, std::set<int> newstates);
   void add(int newstate);
-  void add(set<int> newstates);
+  void add(std::set<int> newstates);
   bool coversWithLessOrEqualConstraints(equivalence& c);
   friend inline bool operator< (const equivalence& lhs, const equivalence& rhs) 
     { return lhs.states < rhs.states; }
   friend inline bool operator==(const equivalence& lhs, const equivalence& rhs) 
     { return lhs.states == rhs.states; }
-  friend ostream& operator<<(ostream& os, const equivalence& obj);
+  friend std::ostream& operator<<(std::ostream& os, const equivalence& obj);
 private:
   const equivgraph& graph;
 };
@@ -45,7 +43,7 @@ private:
 class equivedge {
 public:
   int state;
-  set< set<int> > constraints;
+  std::set< std::set<int> > constraints;
   equivedge(void) {
     state = e_unknown;
   }
@@ -55,18 +53,19 @@ public:
 class equivgraph {
 public:
   fsm machine;
-  vector< vector<equivedge> > equiv;
+  std::vector< std::vector<equivedge> > equiv;
   equivgraph(fsm& m);
-  set<equivalence> maximalClasses(void);
-  set<equivalence> primitiveClasses(void);
-  void printEquivTable(ostream& s) const;
-  void printEquivTableNeato(ostream& s) const;
+  std::set<equivalence> maximalClasses(void);
+  std::set<equivalence> primitiveClasses(void);
+  void printEquivTable(std::ostream& s) const;
+  void printEquivTableNeato(std::ostream& s) const;
 private:
-  set<equivalence> cliquesCache;
-  set<equivalence> subcliquesCache;
+  std::set<equivalence> cliquesCache;
+  std::set<equivalence> subcliquesCache;
   int paullUnger_(int s0, int s1, bool partial);
   void paullUnger(void);
-  void bronKerbosch(set<equivalence>& cliq, set<int> r, set<int> p, set<int> x) const;
+  void bronKerbosch(std::set<equivalence>& cliq, std::set<int> r, 
+                    std::set<int> p, std::set<int> x) const;
 };
 
 

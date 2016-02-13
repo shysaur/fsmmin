@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <queue>
 
+using namespace std;
+
 
 #define UNKNOWN      (-1)
 #define INCOMPATIBLE (0)

@@ -4,8 +4,6 @@
 #include <string>
 #include <set>
 
-using namespace std;
-
 
 #ifndef FSM_H
 #define FSM_H
@@ -13,26 +11,26 @@ using namespace std;
 
 class fsmstate {
 public:
-  vector <int> next;
-  vector <string> out;
-  string label;
+  std::vector <int> next;
+  std::vector <std::string> out;
+  std::string label;
 };
 
 
 class fsm {
 public:
-  vector <fsmstate> states;
+  std::vector <fsmstate> states;
   bool partial;
   int numnext;
-  fsm(istream& s);
+  fsm(std::istream& s);
   fsm(void) {}
-  void printFsm(ostream& s) const;
-  void printFsmDot(ostream& s) const;
+  void printFsm(std::ostream& s) const;
+  void printFsmDot(std::ostream& s) const;
 };
 
 
-string formatSetOfStates(const set<int>& s, const fsm& m);
-string formatSetOfClasses(const set< set<int> >& s, const fsm& m);
+std::string formatSetOfStates(const std::set<int>& s, const fsm& m);
+std::string formatSetOfClasses(const std::set< std::set<int> >& s, const fsm& m);
 
 
 #endif

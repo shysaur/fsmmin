@@ -2,6 +2,8 @@
 #include "fsm.h"
 #include <strstream>
 
+using namespace std;
+
 
 string formatSetOfStates(const set<int>& s, const fsm& m)
 {
