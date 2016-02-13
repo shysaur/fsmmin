@@ -34,11 +34,10 @@ fsm::fsm(istream& s)
 {
   vector< vector<string> > tmpnexts;
   int c, olen = 0;
-  int i, j, k;
   
   partial = false;
 
-  for (i=0; ; i++) {
+  for (int i=0; ; i++) {
     fsmstate cstate;
     
     do {
@@ -54,7 +53,7 @@ fsm::fsm(istream& s)
       throw("Expected label.");
     
     tmpnexts.push_back(vector<string>(0));
-    for (j=0; ; j++) {
+    for (int j=0; ; j++) {
       string nextl;
       string out = "";
       
@@ -115,12 +114,13 @@ fsm::fsm(istream& s)
   }
   
   /* resolve next pointers */
-  for (i=0; i<states.size(); i++) {
-    for (j=0; j<numnext; j++) {
+  for (int i=0; i<states.size(); i++) {
+    for (int j=0; j<numnext; j++) {
       if (tmpnexts[i][j] == "-") {
         states[i].next.push_back(-1);
         partial = true;
       } else {
+        int k;
         for (k=0; k<states.size(); k++) {
           if (tmpnexts[i][j] == states[k].label) {
             states[i].next.push_back(k);
