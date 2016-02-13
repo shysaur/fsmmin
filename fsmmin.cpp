@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
     else
       infsm->printFsm(*fout);
   }
-  if (pequiv || pmax || pprime) {
+  if (pequiv || pmax || pprime || prfsm) {
     equivgraph equiv(*infsm);
   
     if (pequiv) {
@@ -186,18 +186,18 @@ int main(int argc, char *argv[]) {
         j++;
       }
     }
-  }
-  
-  if (prfsm) {
-    fsm newfsm;
-    if (rmethod == 0)
-      newfsm = minimizedFsmFromMaximalClasses(*infsm);
-    else
-      newfsm = minimizedFsmFromPrimitiveClasses(*infsm, verb);
-    if (graphviz)
-      newfsm.printFsmDot(*fout);
-    else
-      newfsm.printFsm(*fout);
+    
+    if (prfsm) {
+      fsm newfsm;
+      if (rmethod == 0)
+        newfsm = minimizedFsmFromMaximalClasses(equiv);
+      else
+        newfsm = minimizedFsmFromPrimitiveClasses(equiv, verb);
+      if (graphviz)
+        newfsm.printFsmDot(*fout);
+      else
+        newfsm.printFsm(*fout);
+    }
   }
 
   if (fout != &cout) {

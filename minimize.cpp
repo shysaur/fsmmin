@@ -94,9 +94,9 @@ int benefit(set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
 }
 
 
-fsm minimizedFsmFromPrimitiveClasses(fsm& ifsm, bool verbose)
+fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
 {
-  equivgraph equiv(ifsm);
+  fsm& ifsm = equiv.machine;
   set<equivalence> tc = equiv.primitiveClasses();
   vector< set<int> > availCl;
   vector< set< set<int> > > availConstr;
@@ -154,9 +154,9 @@ fsm minimizedFsmFromPrimitiveClasses(fsm& ifsm, bool verbose)
 }
 
 
-fsm minimizedFsmFromMaximalClasses(fsm& ifsm)
+fsm minimizedFsmFromMaximalClasses(equivgraph &equiv)
 {
-  equivgraph equiv(ifsm);
+  fsm& ifsm = equiv.machine;
   set<equivalence> tc = equiv.maximalClasses();
   vector< set<int> > selCl;
   

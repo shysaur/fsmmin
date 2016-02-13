@@ -7,8 +7,8 @@
 #define MINIMIZE_H
 
 
-fsm minimizedFsmFromPrimitiveClasses(fsm& ifsm, bool verbose);
-fsm minimizedFsmFromMaximalClasses(fsm& ifsm);
+fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose);
+fsm minimizedFsmFromMaximalClasses(equivgraph &equiv);
 
 
 #endif
