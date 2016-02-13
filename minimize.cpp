@@ -94,7 +94,7 @@ int benefit(set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
 }
 
 
-fsm minimizedFsmFromPrimitiveClasses(fsm& ifsm)
+fsm minimizedFsmFromPrimitiveClasses(fsm& ifsm, bool verbose)
 {
   equivgraph equiv(ifsm);
   set<equivalence> tc = equiv.primitiveClasses();
@@ -112,16 +112,19 @@ fsm minimizedFsmFromPrimitiveClasses(fsm& ifsm)
   while (coveredStates.size() < ifsm.states.size() || selConstr.size() > 0) {
     int maxi = 0;
     int maxb = benefit(availCl[0], availConstr[0], coveredStates, selConstr);
-    cout << "benefit for class " << formatSetOfStates(availCl[0], ifsm) << " = " << maxb << "\n";
+    if (verbose)
+      cout << "benefit for class " << formatSetOfStates(availCl[0], ifsm) << " = " << maxb << "\n";
     for (int i=1; i<availCl.size(); i++) {
       int b = benefit(availCl[i], availConstr[i], coveredStates, selConstr);
-      cout << "benefit for class " << formatSetOfStates(availCl[i], ifsm) << " = " << b << "\n";
+      if (verbose)
+        cout << "benefit for class " << formatSetOfStates(availCl[i], ifsm) << " = " << b << "\n";
       if (b >= maxb) {
         maxb = b;
         maxi = i;
       }
     }
-    cout << "selecting class " << formatSetOfStates(availCl[maxi], ifsm) << "\n";
+    if (verbose)
+      cout << "selecting class " << formatSetOfStates(availCl[maxi], ifsm) << "\n";
     
     set<int> s = availCl[maxi];
     coveredStates.insert(s.begin(), s.end());
