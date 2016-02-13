@@ -35,6 +35,54 @@ string print(const set< set<int> >& s, fsm& m)
 }
 
 
+fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl) 
+{
+  fsm newfsm;
+  newfsm.numnext = ifsm.numnext;
+  newfsm.partial = ifsm.partial;
+  
+  for (int i=0; i<selCl.size(); i++) {
+    fsmstate state;
+    state.label.push_back('a'+i);
+    for (int j=0; j<newfsm.numnext; j++) {
+      set<int> go;
+      bool gound = true;
+      string out = "";
+      
+      for (set<int>::iterator k=selCl[i].begin(); k!= selCl[i].end(); k++) {
+        if (ifsm.states[*k].next[j] >= 0) {
+          go.insert(ifsm.states[*k].next[j]);
+          gound = false;
+        }
+        if (out == "") {
+          out = ifsm.states[*k].out[j];
+        } else {
+          for (int l=0; l<out.length(); l++) {
+            if (ifsm.states[*k].out[j][l] != '-')
+              out[l] = ifsm.states[*k].out[j][l];
+          }
+        }
+      }
+      state.out.push_back(out);
+      if (!gound) {
+        int k;
+        for (k=0; k<selCl.size(); k++) {
+          if (includes(selCl[k].begin(), selCl[k].end(), go.begin(), go.end())) {
+            state.next.push_back(k);
+            break;
+          }
+        }
+        if (k == selCl.size())
+          throw;
+      } else
+        state.next.push_back(-1);
+    }
+    newfsm.states.push_back(state);
+  }
+  return newfsm;
+}
+
+
 int benefit(set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
 {
   int res = 0;
@@ -114,50 +162,20 @@ fsm minimizeFSMWithPrimitiveClasses(fsm& ifsm)
     }
   }
   
-  fsm newfsm;
-  newfsm.numnext = ifsm.numnext;
-  newfsm.partial = ifsm.partial;
+  return buildFsmWithClasses(ifsm, selCl);
+}
+
+
+fsm minimizeFSMWithMaximalClasses(fsm& ifsm)
+{
+  equivgraph equiv(ifsm);
+  set<equivalence> tc = equiv.maximalClasses();
+  vector< set<int> > selCl;
   
-  for (int i=0; i<selCl.size(); i++) {
-    fsmstate state;
-    state.label.push_back('a'+i);
-    for (int j=0; j<newfsm.numnext; j++) {
-      set<int> go;
-      bool gound = true;
-      string out = "";
-      
-      for (set<int>::iterator k=selCl[i].begin(); k!= selCl[i].end(); k++) {
-        if (ifsm.states[*k].next[j] >= 0) {
-          go.insert(ifsm.states[*k].next[j]);
-          gound = false;
-        }
-        if (out == "") {
-          out = ifsm.states[*k].out[j];
-        } else {
-          for (int l=0; l<out.length(); l++) {
-            if (ifsm.states[*k].out[j][l] != '-')
-              out[l] = ifsm.states[*k].out[j][l];
-          }
-        }
-      }
-      state.out.push_back(out);
-      if (!gound) {
-        int k;
-        for (k=0; k<selCl.size(); k++) {
-          if (includes(selCl[k].begin(), selCl[k].end(), go.begin(), go.end())) {
-            state.next.push_back(k);
-            break;
-          }
-        }
-        if (k == selCl.size())
-          throw;
-      } else
-        state.next.push_back(-1);
-    }
-    newfsm.states.push_back(state);
-  }
-  
-  return newfsm;
+  for (set<equivalence>::iterator i=tc.begin(); i!=tc.end(); i++)
+    selCl.push_back((*i).states);
+    
+  return buildFsmWithClasses(ifsm, selCl);
 }
 
 
@@ -186,7 +204,7 @@ int main(int argc, char *argv[]) {
     i++;
   }
   
-  fsm newfsm = minimizeFSMWithPrimitiveClasses(*infsm);
+  fsm newfsm = minimizeFSMWithMaximalClasses(*infsm);
   newfsm.printFsm(cout);
   
   return 0;
