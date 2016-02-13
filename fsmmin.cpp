@@ -26,6 +26,15 @@ int main(int argc, char *argv[]) {
   while (i != c.end()) {
     cout << nl++ << " = ";
     cout << *i;
+    cout << " coalesced constraints=(";
+    set< set<int> > cc = (*i).coalescedConstraints();
+    for (set< set<int> >::iterator j=cc.begin(); j!=cc.end(); j++) {
+      for(set<int>::iterator k=(*j).begin(); k!=(*j).end(); k++) {
+        cout << infsm->states[*k].label << " ";
+      }
+      cout << ", ";
+    }
+    cout << ")";
     cout << '\n';
     i++;
   }

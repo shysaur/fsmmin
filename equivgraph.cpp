@@ -18,6 +18,24 @@ equivalence::equivalence(const equivgraph& graph, set<int> newstates) : graph(gr
 }
 
 
+set< set<int> > equivalence::coalescedConstraints(void) const
+{
+  set< set<int> > res;
+  
+  for (int i=0; i<graph.machine.numnext; i++) {
+    set<int> t;
+    for (set<int>::iterator j=states.begin(); j!=states.end(); j++) {
+      int n = graph.machine.states[*j].next[i];
+      if (n >= 0)
+        t.insert(n);
+    }
+    if (t.size() > 1 && !includes(states.begin(), states.end(), t.begin(), t.end()))
+      res.insert(t);
+  }
+  return res;
+}
+
+
 void equivalence::add(set<int> newstates)
 {
   set<int>::iterator i = newstates.begin();

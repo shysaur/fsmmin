@@ -27,6 +27,7 @@ class equivalence {
 public:
   set<int> states;
   set< set<int> > constraints;
+  set< set<int> > coalescedConstraints(void) const;
   equivalence(const equivgraph& graph, set<int> newstates);
   void add(int newstate);
   void add(set<int> newstates);
