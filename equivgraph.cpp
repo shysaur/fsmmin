@@ -93,34 +93,12 @@ bool equivalence::coversWithLessOrEqualConstraints(equivalence& c)
 
 ostream& operator<<(ostream& os, const equivalence& obj)
 {
-  os << "(";
+  string tmp, tmp2;
   
-  set<int>::iterator i = obj.states.begin();
-  for (; i!=obj.states.end(); i++) {
-    if (i != obj.states.begin())
-      os << ",";
-    os << obj.graph.machine.states[*i].label;
-  }
-  
-  if (obj.constraints.size() > 0) {
-    os << "; constraints=(";
-    
-    set< set<int> >::iterator i = obj.constraints.begin();
-    for (; i!=obj.constraints.end(); i++) {
-      if (i != obj.constraints.begin())
-        os << ",";
-      os << "(";
-      set<int>::iterator j = (*i).begin();
-      for (; j!=(*i).end(); j++) {
-        if (j != (*i).begin())
-          os << ",";
-        os << obj.graph.machine.states[*j].label;
-      }
-      os << ")";
-    }
-    os << ")";
-  }
-  os << ")";
+  tmp = formatSetOfStates(obj.states, obj.graph.machine);
+  tmp2 = formatSetOfClasses(obj.constraints, obj.graph.machine);
+  tmp.replace(tmp.length()-1, 0, "; constraints=" + tmp2);
+  os << tmp;
   return os;
 }
 

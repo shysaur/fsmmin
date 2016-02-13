@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <set>
 
 using namespace std;
 
@@ -28,6 +29,10 @@ public:
   void printFsm(ostream& s) const;
   void printFsmDot(ostream& s) const;
 };
+
+
+string formatSetOfStates(const set<int>& s, const fsm& m);
+string formatSetOfClasses(const set< set<int> >& s, const fsm& m);
 
 
 #endif

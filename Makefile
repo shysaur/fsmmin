@@ -3,11 +3,13 @@
 OBJDIR	= obj
 
 DEPS	= fsm.h \
-	  equivgraph.h
+	  equivgraph.h \
+	  minimize.h
 
 CXX_SOURCE	= fsmmin.cpp \
 	  fsm.cpp \
-	  equivgraph.cpp
+	  equivgraph.cpp \
+	  minimize.cpp
 
 OBJ	= $(patsubst %, $(OBJDIR)/%, $(CXX_SOURCE:.cpp=.o))
 
