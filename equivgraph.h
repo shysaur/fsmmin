@@ -30,6 +30,7 @@ public:
   equivalence(const equivgraph& graph, set<int> newstates);
   void add(int newstate);
   void add(set<int> newstates);
+  bool coversWithLessOrEqualConstraints(equivalence& c);
   friend inline bool operator< (const equivalence& lhs, const equivalence& rhs) 
     { return lhs.states < rhs.states; }
   friend inline bool operator==(const equivalence& lhs, const equivalence& rhs) 
@@ -55,11 +56,13 @@ public:
   fsm machine;
   vector< vector<equivedge> > equiv;
   equivgraph(fsm& m);
-  set< equivalence > maximalClasses(void);
+  set<equivalence> maximalClasses(void);
+  set<equivalence> primitiveClasses(void);
   void printEquivTable(ostream& s) const;
   void printEquivTableNeato(ostream& s) const;
 private:
   set<equivalence> cliquesCache;
+  set<equivalence> subcliquesCache;
   int paullUnger_(int s0, int s1, bool partial);
   void paullUnger(void);
   void bronKerbosch(set<equivalence>& cliq, set<int> r, set<int> p, set<int> x) const;

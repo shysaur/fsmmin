@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <queue>
 
 
 #define UNKNOWN      (-1)
@@ -59,6 +60,16 @@ void equivalence::add(int newstate)
   for (k=0; k<toremove.size(); k++) {
     constraints.erase(toremove[k]);
   }
+}
+
+
+bool equivalence::coversWithLessOrEqualConstraints(equivalence& c)
+{ 
+  if (states.size() <= c.states.size())
+    return false;
+  if (!includes(states.begin(), states.end(), c.states.begin(), c.states.end()))
+    return false;
+  return includes(c.constraints.begin(), c.constraints.end(), constraints.begin(), constraints.end());
 }
 
 
@@ -231,7 +242,7 @@ void equivgraph::bronKerbosch(set<equivalence>& cliq, set<int> r, set<int> p, se
 }
 
 
-set< equivalence > equivgraph::maximalClasses(void)
+set<equivalence> equivgraph::maximalClasses(void)
 {
   set<int> p;
   int i;
@@ -243,6 +254,51 @@ set< equivalence > equivgraph::maximalClasses(void)
     p.insert(i);
   bronKerbosch(cliquesCache, set<int>(), p, set<int>());
   return cliquesCache;
+}
+
+
+set<equivalence> equivgraph::primitiveClasses(void)
+{
+  if (subcliquesCache.size() > 0)
+    return subcliquesCache;
+    
+  vector<equivalence> bigger;  
+  queue<equivalence> gen;
+  
+  set<equivalence> maxc = maximalClasses();
+  for (set<equivalence>::iterator i=maxc.begin(); i!=maxc.end(); i++) {
+    gen.push(*i);
+  }
+  
+  while (!gen.empty()) {
+    equivalence e = gen.front();
+    gen.pop();
+    
+    bool existsbigger = false;
+    for (int i=0; i<bigger.size(); i++) {
+      if (bigger[i].coversWithLessOrEqualConstraints(e)) {
+        existsbigger = true;
+        break;
+      }
+    }
+    if (!existsbigger)
+      subcliquesCache.insert(e);
+    else
+      subcliquesCache.erase(e);
+    
+    bigger.push_back(e);
+    
+    set<int>::iterator i = e.states.begin();
+    for (; i != e.states.end(); i++) {
+      set<int> t = e.states;
+      t.erase(*i);
+      if (!t.empty()) {
+        equivalence f(*this, t);
+        gen.push(f);
+      }
+    }
+  }
+  return subcliquesCache;
 }
 
 

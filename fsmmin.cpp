@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   equivgraph equiv(*infsm);
   equiv.printEquivTableNeato(cout);
   
-  set< equivalence > c = equiv.maximalClasses();
+  set< equivalence > c = equiv.primitiveClasses();
   
   char nl = 'a';
   set< equivalence >::iterator i = c.begin();
