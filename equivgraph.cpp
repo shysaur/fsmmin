@@ -8,12 +8,6 @@
 using namespace std;
 
 
-#define UNKNOWN      (-1)
-#define INCOMPATIBLE (0)
-#define EQUIVALENT   (1)
-#define COMPATIBLE   (2)
-
-
 equivalence::equivalence(const equivgraph& g, set<int> newstates)
 {
   graph = &g;
@@ -113,19 +107,16 @@ int equivgraph::paullUnger_(int s0, int s1, bool partial)
     return e_equivalent;
   }
   
-  /* Cycle: if in at least one previous state in the cycle an undefined next
-   * state or output constraint was found, the cycle is made of pairs of 
-   * compatible states; otherwise, the cycle must be part of a clique of
-   * equivalent states. */
-  if (equiv[s0][s1].state == e_maybe_compatible) {
-    int r = partial ? e_compatible : e_equivalent;
-    equiv[s0][s1].state = equiv[s1][s0].state = r;
-    return r;
-  }
-  
   /* Don't unnecessarily recompute compatibility statuses */
-  if (equiv[s0][s1].state != e_unknown)
+  if (equiv[s0][s1].state > e_unknown) {
+    /* We have found a cycle! Mark where the circle closes, so that we
+     * can make a decision after unwinding it all. */
+    if (equiv[s0][s1].state < 0) {
+      equiv[s0][s1].state = equiv[s1][s0].state = e_maybe_compatible_root;
+      return e_unknown;
+    }
     return equiv[s0][s1].state;
+  }
     
   /* If two states, for every input, go to equivalent states and have the same
    * output, they are equivalent. If at least one output or at least one
@@ -157,28 +148,56 @@ int equivgraph::paullUnger_(int s0, int s1, bool partial)
   
   /* If there is at least one undefined next state, or at least one undefined
    * output, the two states can't be equivalent. */
-  int f = anyundef ? e_compatible : e_equivalent;
+  int f = (anyundef ? e_compatible : e_equivalent);
+  bool anycycle = false;
   
-  /* Check compatibility status of next states */
+  /* Check compatibility status of next states. Only if every pair of them is
+   * compatible, then this pair is compatible. */
   for (int i=0; i<machine.numnext; i++) {
     int n0 = machine.states[s0].next[i];
     int n1 = machine.states[s1].next[i];
+    
     if (n0 < 0 || n1 < 0)
+      continue;
+    if ((n0 == s0 && n1 == s1) || (n0 == s1 && n1 == s0))
       continue;
       
     int r = paullUnger_(n0, n1, anyundef);
+    
     if (r == e_incompatible)
+      /* s0 and s1 are incompatible; this also makes the cycle where they
+       * might be part of invalid. */
       return equiv[s0][s1].state = equiv[s1][s0].state = e_incompatible;
-    if (r == e_compatible)
+    if (r == e_compatible || r == e_maybe_compatible)
+      /* Downgrade equivalence to compatibility if a possible next state leads
+       * to an undefined transition or output. */
       f = e_compatible;
+    if (r < 0)
+      /* This transition leads to a cycle. */
+      anycycle = true;
+      
+    /* Update constraints. For this pair of states to be coalesced, all the
+     * other compatible state pairs they lead to must be coalesced. */
     set<int> c;
     c.insert(n0);
     c.insert(n1);
-    if (c.size() > 1 && !((n0 == s0 && n1 == s1) || (n0 == s1 && n1 == s0)))
+    if (c.size() > 1)
       equiv[s0][s1].constraints.insert(c);
   }
   equiv[s1][s0].constraints = equiv[s0][s1].constraints;
   
+  /* Note that, at this point, equiv[s0][s1].state == e_maybe_compatible_root 
+   * iff s0,s1 is the first pair of states in the cycle that were examined. */
+  if (anycycle && equiv[s0][s1].state != e_maybe_compatible_root) {
+    /* One of our transitions is part of a cycle. The circle may be made of
+     * compatible states, but at this point, not all states in the cycle were
+     * fully checked to be compatible, so we can't say if that transition
+     * leads to a pair of compatible states or not. */
+    equiv[s0][s1].state = equiv[s1][s0].state = e_unknown;
+    /* We just tell to the caller if there is some undefined transition or
+     * output */
+    return -f;
+  }
   return equiv[s0][s1].state = equiv[s1][s0].state = f;
 }
 

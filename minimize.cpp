@@ -3,6 +3,8 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
+#include <sstream>
 
 using namespace std;
 
@@ -58,8 +60,12 @@ fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl)
             break;
           }
         }
-        if (k == selCl.size())
-          throw;
+        if (k == selCl.size()) {
+          stringstream estr;
+          estr << "Can't find class corresponding to " << formatSetOfStates(go, ifsm);
+          estr << " for input " << j << " of state " << formatSetOfStates(selCl[i], ifsm);
+          throw runtime_error(estr.str());
+        }
       } else
         state.next.push_back(-1);
     }

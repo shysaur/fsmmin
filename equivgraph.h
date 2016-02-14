@@ -10,11 +10,13 @@
 
 
 enum {
-  e_unknown = -1,
-  e_incompatible,
-  e_equivalent,
-  e_maybe_compatible,
-  e_compatible
+  e_unknown = -4,
+  e_maybe_compatible_root = -3,
+  e_maybe_compatible = -2,
+  e_maybe_equivalent = -1,
+  e_incompatible = 0,
+  e_equivalent = 1,
+  e_compatible = 2
 };
 
 
