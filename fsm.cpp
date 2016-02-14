@@ -133,6 +133,10 @@ fsm::fsm(istream& s)
     
     states.push_back(cstate);
   }
+  if (states.size() == 0) {
+	estr << "A valid machine has at least one state.";
+	throw runtime_error(estr.str());
+  }
   
   /* resolve next pointers */
   for (int i=0; i<states.size(); i++) {
