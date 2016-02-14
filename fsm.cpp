@@ -1,6 +1,7 @@
 
 #include "fsm.h"
 #include <strstream>
+#include <stdexcept>
 
 using namespace std;
 

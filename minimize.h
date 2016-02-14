@@ -1,6 +1,6 @@
 
-#import "equivgraph.h"
-#import "fsm.h"
+#include "equivgraph.h"
+#include "fsm.h"
 
 
 #ifndef MINIMIZE_H

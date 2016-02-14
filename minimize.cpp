@@ -1,7 +1,8 @@
 
-#import "minimize.h"
-#import <set>
-#import <vector>
+#include "minimize.h"
+#include <set>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
