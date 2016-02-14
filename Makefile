@@ -6,23 +6,29 @@ DEPS	= fsm.h \
 	  equivgraph.h \
 	  minimize.h
 
-CXX_SOURCE	= fsmmin.cpp \
+CXX_SRC_MIN	= fsmmin.cpp \
 	  fsm.cpp \
 	  equivgraph.cpp \
 	  minimize.cpp
 
-OBJ	= $(patsubst %, $(OBJDIR)/%, $(CXX_SOURCE:.cpp=.o))
+CXX_SRC_GEN	= fsmgen.cpp
+
+OBJ_MIN	= $(patsubst %, $(OBJDIR)/%, $(CXX_SRC_MIN:.cpp=.o))
+OBJ_GEN	= $(patsubst %, $(OBJDIR)/%, $(CXX_SRC_GEN:.cpp=.o))
 
 .PHONY:	all
 .PHONY:	clean
 
-all:	$(OBJDIR) fsmmin
+all:	$(OBJDIR) fsmmin fsmgen
 
 $(OBJDIR):	
 	mkdir -p $(OBJDIR)
 
-fsmmin:	$(OBJ)
-	$(CXX) $(CXXFLAGS) -o fsmmin $(OBJ)
+fsmmin:	$(OBJ_MIN)
+	$(CXX) $(CXXFLAGS) -o fsmmin $(OBJ_MIN)
+
+fsmgen:	$(OBJ_GEN)
+	$(CXX) $(CXXFLAGS) -o fsmgen $(OBJ_GEN)
 
 $(OBJDIR)/%.o:	%.cpp $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
