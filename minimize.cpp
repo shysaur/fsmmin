@@ -62,8 +62,8 @@ fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl)
         }
         if (k == selCl.size()) {
           stringstream estr;
-          estr << "Can't find class corresponding to " << formatSetOfStates(go, ifsm);
-          estr << " for input " << j << " of state " << formatSetOfStates(selCl[i], ifsm);
+          estr << "Can't find class corresponding to " << ifsm.formatSetOfStates(go);
+          estr << " for input " << j << " of state " << ifsm.formatSetOfStates(selCl[i]);
           throw runtime_error(estr.str());
         }
       } else
@@ -120,18 +120,18 @@ fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
     int maxi = 0;
     int maxb = benefit(availCl[0], availConstr[0], coveredStates, selConstr);
     if (verbose)
-      cout << "benefit for class " << formatSetOfStates(availCl[0], ifsm) << " = " << maxb << "\n";
+      cout << "benefit for class " << ifsm.formatSetOfStates(availCl[0]) << " = " << maxb << "\n";
     for (int i=1; i<availCl.size(); i++) {
       int b = benefit(availCl[i], availConstr[i], coveredStates, selConstr);
       if (verbose)
-        cout << "benefit for class " << formatSetOfStates(availCl[i], ifsm) << " = " << b << "\n";
+        cout << "benefit for class " << ifsm.formatSetOfStates(availCl[i]) << " = " << b << "\n";
       if (b >= maxb) {
         maxb = b;
         maxi = i;
       }
     }
     if (verbose)
-      cout << "selecting class " << formatSetOfStates(availCl[maxi], ifsm) << "\n";
+      cout << "selecting class " << ifsm.formatSetOfStates(availCl[maxi]) << "\n";
     
     set<int> s = availCl[maxi];
     coveredStates.insert(s.begin(), s.end());

@@ -84,8 +84,8 @@ ostream& operator<<(ostream& os, const equivalence& obj)
 {
   string tmp, tmp2;
   
-  tmp = formatSetOfStates(obj.states, obj.graph->machine);
-  tmp2 = formatSetOfClasses(obj.constraints, obj.graph->machine);
+  tmp = obj.graph->machine.formatSetOfStates(obj.states);
+  tmp2 = obj.graph->machine.formatSetOfClasses(obj.constraints);
   tmp.replace(tmp.length()-1, 0, "; constraints=" + tmp2);
   os << tmp;
   return os;

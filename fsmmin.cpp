@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
         *fout << "maxclass " << j << " = " << *i;
         if (verb) {
           *fout << " coalesced constraints=";
-          *fout << formatSetOfClasses((*i).coalescedConstraints(), *infsm);
+          *fout << infsm->formatSetOfClasses((*i).coalescedConstraints());
         }
         *fout << '\n';
         j++;
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
         *fout << "primeclass " << j << " = " << *i;
         if (verb) {
           *fout << " coalesced constraints=";
-          *fout << formatSetOfClasses((*i).coalescedConstraints(), *infsm);
+          *fout << infsm->formatSetOfClasses((*i).coalescedConstraints());
         }
         *fout << '\n';
         j++;

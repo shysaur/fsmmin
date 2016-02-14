@@ -27,11 +27,9 @@ public:
   fsm(void) {}
   void printFsm(std::ostream& s) const;
   void printFsmDot(std::ostream& s) const;
+  std::string formatSetOfStates(const std::set<int>& s) const;
+  std::string formatSetOfClasses(const std::set< std::set<int> >& s) const;
 };
-
-
-std::string formatSetOfStates(const std::set<int>& s, const fsm& m);
-std::string formatSetOfClasses(const std::set< std::set<int> >& s, const fsm& m);
 
 
 #endif

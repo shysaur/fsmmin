@@ -7,28 +7,28 @@
 using namespace std;
 
 
-string formatSetOfStates(const set<int>& s, const fsm& m)
+string fsm::formatSetOfStates(const set<int>& s) const
 {
   string out = "(";
   
   for (set<int>::iterator i=s.begin(); i!=s.end(); i++) {
     if (i != s.begin())
       out += ",";
-    out += m.states[*i].label;
+    out += states[*i].label;
   }
   out += ")";
   return out;
 }
 
 
-string formatSetOfClasses(const set< set<int> >& s, const fsm& m)
+string fsm::formatSetOfClasses(const set< set<int> >& s) const
 {
   string out = "(";
   
   for (set< set<int> >::iterator i=s.begin(); i!=s.end(); i++) {
     if (i != s.begin())
       out += ",";
-    out += formatSetOfStates(*i, m);
+    out += formatSetOfStates(*i);
   }
   out += ")";
   return out;
