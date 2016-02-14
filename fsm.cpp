@@ -2,6 +2,7 @@
 #include "fsm.h"
 #include <sstream>
 #include <stdexcept>
+#include <iomanip>
 
 using namespace std;
 
@@ -164,16 +165,17 @@ fsm::fsm(istream& s)
 
 void fsm::printFsm(ostream& s) const
 {
-  int i, j;
+  int maxl = states[0].label.length();
+  for (int i=0; i<states.size(); i++)
+    if (states[i].label.length() > maxl)
+      maxl = states[i].label.length();
   
-  for (i=0; i<states.size(); i++) {
-    s << states[i].label;
-    s << ' ';
-    for (j=0; j<states[i].next.size(); j++) {
+  for (int i=0; i<states.size(); i++) {
+    s << setw(maxl) << states[i].label << ' ';
+    for (int j=0; j<states[i].next.size(); j++) {
+      s << setw(maxl);
       s << (states[i].next[j] >= 0 ? states[states[i].next[j]].label : "-");
-      s << '/';
-      s << states[i].out[j];
-      s << ' ';
+      s << '/' << states[i].out[j] << ' ';
     }
     s << '\n';
   }
