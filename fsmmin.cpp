@@ -11,6 +11,8 @@ using namespace std;
 
 
 void usage(char *me) {
+  cout << "Finite State Machine Minimizer 2.0.0\n";
+  cout << "Copyright (c) 2016 Daniele Cattaneo\n\n";
   cout << "Usage:\n  " << me << " [options] [--] [input file]\n\n";
   cout << "Options:\n"
   "  -i --input-fsm          Print the input FSM.\n"
@@ -22,7 +24,7 @@ void usage(char *me) {
   "  -r --reduced-fsm=<heur> Print a minimal FSM equivalent to the input FSM,\n"
   "                          using the <heur> method (optional).\n"
   "  -v --verbose            Prints additional logs, when available.\n"
-  "  -g --graphviz           Output the equivalent states graph and the FSMs\n"
+  "  -g --graphviz           Output the compatible states graph and the FSMs\n"
   "                          in graphviz format (otherwise they are output as\n"
   "                          tables).\n"
   "  -o --output=<file>      Write output to <file>. Logs are always output on\n"
@@ -30,9 +32,11 @@ void usage(char *me) {
   "  -h --help               Display this help and exit.\n\n"
   "Finite State Machine Reduction Methods:\n"
   "  max [default]   The new states correspond to one maximal compatibility\n"
-  "                  class each.\n"
+  "                  class each. This method always guarantees the best possible\n"
+  "                  result when the input machine is completely specified.\n"
   "  prime           The new states are chosen among all primitive compatibility\n"
-  "                  classes using an heuristic.\n\n"
+  "                  classes using an heuristic. This metod often gives better\n"
+  "                  results than 'max' when the machine is incomplete.\n\n"
   "Finite State Machine Format:\n"
   "  <machine>       := <state>+\n"
   "  <state>         := <state_label> <transition>+ \\n\n"
@@ -42,10 +46,11 @@ void usage(char *me) {
   "Example of FSM:\n"
   "  A  A/0  B/1\n"
   "  B  A/1  A/-\n"
-  "(dashes indicates an undefined next state or output symbol)\n\n"
+  "Dashes indicates an undefined next state or output symbol. If there is at\n"
+  "least one undefined next state or output symbol, the machine is incomplete.\n\n"
   "If no input file is given, the input FSM is read from standard input.\n"
   "This program is capable of reading Mealy machines only (Moore machines can\n"
-  "be expressed as Mealy machines though).\n";
+  "always be expressed as Mealy machines).\n";
 }
 
 
