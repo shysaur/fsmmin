@@ -197,7 +197,7 @@ void equivgraph::paullUnger(void)
 }
 
 
-void equivgraph::bronKerbosch(set<equivalence>& cliq, set<int> r, set<int> p, set<int> x) const
+void equivgraph::bronKerbosch(set<equivalence>& cliq, set<int>& r, set<int>& p, set<int>& x) const
 {
   if (p.size() == 0 && x.size() == 0) {
     equivalence e(*this, r);
@@ -233,11 +233,13 @@ set<equivalence> equivgraph::maximalClasses(void)
   if (cliquesCache.size() > 0)
     return cliquesCache;
   
+  set<int> r;
   set<int> p;
+  set<int> x;
   for (int i=0; i<machine.states.size(); i++) 
     p.insert(i);
     
-  bronKerbosch(cliquesCache, set<int>(), p, set<int>());
+  bronKerbosch(cliquesCache, r, p, x);
   return cliquesCache;
 }
 

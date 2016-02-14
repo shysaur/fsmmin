@@ -64,8 +64,8 @@ private:
   std::set<equivalence> subcliquesCache;
   int paullUnger_(int s0, int s1, bool partial);
   void paullUnger(void);
-  void bronKerbosch(std::set<equivalence>& cliq, std::set<int> r, 
-                    std::set<int> p, std::set<int> x) const;
+  void bronKerbosch(std::set<equivalence>& cliq, std::set<int>& r, 
+                    std::set<int>& p, std::set<int>& x) const;
 };
 
 
