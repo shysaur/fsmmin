@@ -14,8 +14,9 @@ using namespace std;
 #define COMPATIBLE   (2)
 
 
-equivalence::equivalence(const equivgraph& graph, set<int> newstates) : graph(graph)
+equivalence::equivalence(const equivgraph& g, set<int> newstates)
 {
+  graph = &g;
   add(newstates);
 }
 
@@ -24,10 +25,10 @@ set< set<int> > equivalence::coalescedConstraints(void) const
 {
   set< set<int> > res;
   
-  for (int i=0; i<graph.machine.numnext; i++) {
+  for (int i=0; i<graph->machine.numnext; i++) {
     set<int> t;
     for (set<int>::iterator j=states.begin(); j!=states.end(); j++) {
-      int n = graph.machine.states[*j].next[i];
+      int n = graph->machine.states[*j].next[i];
       if (n >= 0)
         t.insert(n);
     }
@@ -50,10 +51,10 @@ void equivalence::add(set<int> newstates)
 void equivalence::add(int newstate)
 {
   for (set<int>::iterator i = states.begin(); i!=states.end(); i++) {
-    if (graph.equiv[newstate][*i].state == e_incompatible)
+    if (graph->equiv[newstate][*i].state == e_incompatible)
       throw;
-    constraints.insert(graph.equiv[newstate][*i].constraints.begin(), 
-                       graph.equiv[newstate][*i].constraints.end());
+    constraints.insert(graph->equiv[newstate][*i].constraints.begin(), 
+                       graph->equiv[newstate][*i].constraints.end());
   }
   
   states.insert(newstate);
@@ -89,8 +90,8 @@ ostream& operator<<(ostream& os, const equivalence& obj)
 {
   string tmp, tmp2;
   
-  tmp = formatSetOfStates(obj.states, obj.graph.machine);
-  tmp2 = formatSetOfClasses(obj.constraints, obj.graph.machine);
+  tmp = formatSetOfStates(obj.states, obj.graph->machine);
+  tmp2 = formatSetOfClasses(obj.constraints, obj.graph->machine);
   tmp.replace(tmp.length()-1, 0, "; constraints=" + tmp2);
   os << tmp;
   return os;

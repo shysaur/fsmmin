@@ -36,7 +36,7 @@ public:
     { return lhs.states == rhs.states; }
   friend std::ostream& operator<<(std::ostream& os, const equivalence& obj);
 private:
-  const equivgraph& graph;
+  const equivgraph *graph;
 };
 
 
