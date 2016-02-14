@@ -179,21 +179,18 @@ void fsm::printFsm(ostream& s) const
     }
     s << '\n';
   }
-
 }
 
 
 void fsm::printFsmDot(ostream& s) const
 {
-  int i, j, k;
-  
   s << "digraph G {\n";
-  for (i=0; i<states.size(); i++) {
+  for (int i=0; i<states.size(); i++) {
     s << states[i].label << ";\n";
-    for (j=0; j<numnext; j++) {
+    for (int j=0; j<numnext; j++) {
       bool outundef = true;
       
-      for (k=0; j<states[i].out[j].length(); j++) {
+      for (int k=0; k<states[i].out[j].length(); k++) {
         if (states[i].out[j][k] != '-') {
           outundef = false;
           break;
@@ -201,11 +198,19 @@ void fsm::printFsmDot(ostream& s) const
       }
       
       if (states[i].next[j] >= 0 || !outundef) {
-        s << states[i].label << " -> ";
-        s << (states[i].next[j] >= 0 ? states[states[i].next[j]].label : "-");
-        s << " [label=\"" << j << '/';
-        s << states[i].out[j];
-        s << "\"];\n";
+        string nextlabel;
+        
+        if (states[i].next[j] >= 0)
+          nextlabel = states[states[i].next[j]].label;
+        else {
+          stringstream t;
+          t << "undefined_" << i << "_" << j;
+          nextlabel = t.str();
+          s << nextlabel << " [style=\"invisible\"];\n";
+        }
+        
+        s << states[i].label << " -> " << nextlabel;
+        s << " [label=\"" << j << '/' << states[i].out[j] << "\"];\n";
       }
     }
   }
