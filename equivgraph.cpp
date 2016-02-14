@@ -289,14 +289,15 @@ set<equivalence> equivgraph::primitiveClasses(void)
 
 void equivgraph::printEquivTable(ostream& s) const
 { 
-  int maxw = machine.states[1].label.length();
-  for (int i=2; i<machine.states.size(); i++) {
+  int zi = machine.states.size() > 1 ? 1 : 0;
+  int maxw = machine.states[zi].label.length();
+  for (int i=zi+1; i<machine.states.size(); i++) {
     maxw = max((int)machine.states[i].label.length(), maxw);
   }
   
-  for (int i=1; i<machine.states.size(); i++) {
+  for (int i=zi; i<machine.states.size(); i++) {
     s << setw(maxw) << machine.states[i].label << " ";
-    for (int j=0; j<i; j++) {
+    for (int j=0; j<=i-zi; j++) {
       int tw = machine.states[j].label.length();
       int w = max(1, (tw - 1)/2);
       s << setw(w);
@@ -311,7 +312,7 @@ void equivgraph::printEquivTable(ostream& s) const
     s << '\n';
   }
   s << setw(maxw) << " " << " ";
-  for (int i=0; i<machine.states.size()-1; i++) {
+  for (int i=0; i<machine.states.size()-zi; i++) {
     s << machine.states[i].label << " "; 
   }
   s << '\n';
