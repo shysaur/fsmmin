@@ -1,6 +1,6 @@
 
 #include "fsm.h"
-#include <strstream>
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -36,7 +36,7 @@ string formatSetOfClasses(const set< set<int> >& s, const fsm& m)
 
 fsm::fsm(istream& s)
 {
-  strstream estr;  
+  stringstream estr;  
   vector< vector<string> > tmpnexts;
   int c, olen = 0;
   
