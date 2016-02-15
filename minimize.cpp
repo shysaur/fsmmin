@@ -76,26 +76,27 @@ fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl)
 }
 
 
-int benefit(int *cov, int *con, int *sol, set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
+int benefit(int *cov, int *con, int *sol, int wcov, int wcon, int wsol, 
+            set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
 {
   int tcov=0, tcon=0, tsol=0;
   
-  /* +1 for each newly covered state */
+  /* +wcov for each newly covered state */
   for (set<int>::iterator i=s.begin(); i!=s.end(); i++) {
     if (cs.find(*i) == cs.end())
-      tcov++;
+      tcov += wcov;
   }
   
-  /* -1 for each new constraint */
+  /* -wcon for each new constraint */
   for (set< set<int> >::iterator i=c.begin(); i!=c.end(); i++) {
     if (sc.find(*i) == sc.end())
-      tcon--;
+      tcon -= wcon;
   }
   
-  /* +1 for each newly covered constraint */
+  /* +wsol for each newly covered constraint */
   for (set< set<int> >::iterator i=sc.begin(); i!=sc.end(); i++) {
     if (includes(s.begin(), s.end(), (*i).begin(), (*i).end()))
-      tsol++;
+      tsol += wsol;
   }
   
   if (cov) *cov = tcov;
@@ -105,7 +106,7 @@ int benefit(int *cov, int *con, int *sol, set<int>& s, set< set<int> >& c, set<i
 }
 
 
-fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
+fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose, int wcov, int wcon, int wsol)
 {
   fsm& ifsm = equiv.machine;
   set<equivalence> tc = equiv.primitiveClasses();
@@ -126,7 +127,7 @@ fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
 
     for (int i=0; i<availCl.size(); i++) {
       int cov, con, sol;
-      int b = benefit(&cov, &con, &sol, availCl[i], availConstr[i], coveredStates, selConstr);
+      int b = benefit(&cov, &con, &sol, wcov, wcon, wsol, availCl[i], availConstr[i], coveredStates, selConstr);
       
       if (verbose) {
         cout << "benefit for class " << ifsm.formatSetOfStates(availCl[i]) << " = ";

@@ -24,6 +24,9 @@ void usage(char *me) {
   "                          states in the input FSM.\n"
   "  -r --reduced-fsm=<heur> Print a minimal FSM equivalent to the input FSM,\n"
   "                          using the <heur> method (optional).\n"
+  "     --prime-weights=<w>  Choose custom weights for covered states, new\n"
+  "                          constraints, and solved constraints, for the \"prime\"\n"
+  "                          heuristic. <w> = three comma-separated unsigned ints.\n"
   "  -v --verbose            Prints additional logs, when available.\n"
   "  -g --graphviz           Output the compatible states graph and the FSMs\n"
   "                          in graphviz format (otherwise they are output as\n"
@@ -57,11 +60,13 @@ void usage(char *me) {
 
 int main(int argc, char *argv[]) {
   int graphviz=0, pequiv=0, prfsm=0, pfsm=0, pmax=0, pprime=0, verb=0;
+  unsigned wcov=1, wcon=1, wsol=1;
   int rmethod=0;
   struct option longopts[] = {
     {"input-fsm",     no_argument,       NULL,     'i'},
     {"graphviz",      no_argument,       NULL,     'g'},
     {"reduced-fsm",   optional_argument, NULL,     'r'},
+    {"prime-weights", required_argument, NULL,     300},
     {"equiv-table",   no_argument,       NULL,     't'},
     {"max-classes",   no_argument,       NULL,     'c'},
     {"prime-classes", no_argument,       &pprime,    1},
@@ -97,6 +102,23 @@ int main(int argc, char *argv[]) {
             cout << "Unknown reduction method " << optarg << "\n";
             return 1;
           }
+        }
+        break;
+      case 300:
+        if (optarg) {
+          if (sscanf(optarg, "%u , %u , %u", &wcov, &wcon, &wsol) < 3) {
+            cout << "Option --prime-classes requires three comma-separated ";
+            cout << "unsigned decimal numbers as parameter.\n";
+            return 1;
+          }
+          if (wcov == 0 && wsol == 0) {
+            cout << "The algorithm won't work if both the state cover and ";
+            cout << "constraint cover parameters are zero.\n";
+            return 1;
+          }
+        } else {
+          cout << "Option --prime-classes requires a parameter.\n";
+          return 1;
         }
         break;
       case 't':
@@ -198,7 +220,7 @@ int main(int argc, char *argv[]) {
       if (rmethod == 0)
         newfsm = minimizedFsmFromMaximalClasses(equiv);
       else
-        newfsm = minimizedFsmFromPrimitiveClasses(equiv, verb);
+        newfsm = minimizedFsmFromPrimitiveClasses(equiv, verb, wcov, wcon, wsol);
       if (graphviz)
         newfsm.printFsmDot(*fout);
       else
