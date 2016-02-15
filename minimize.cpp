@@ -75,29 +75,32 @@ fsm buildFsmWithClasses(fsm& ifsm, vector< set<int> >& selCl)
 }
 
 
-int benefit(set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
+int benefit(int *cov, int *con, int *sol, set<int>& s, set< set<int> >& c, set<int> cs, set< set<int> > sc)
 {
-  int res = 0;
+  int tcov=0, tcon=0, tsol=0;
   
   /* +1 for each newly covered state */
   for (set<int>::iterator i=s.begin(); i!=s.end(); i++) {
     if (cs.find(*i) == cs.end())
-      res++;
+      tcov++;
   }
   
   /* -1 for each new constraint */
   for (set< set<int> >::iterator i=c.begin(); i!=c.end(); i++) {
     if (sc.find(*i) == sc.end())
-      res--;
+      tcon--;
   }
   
   /* +1 for each newly covered constraint */
   for (set< set<int> >::iterator i=sc.begin(); i!=sc.end(); i++) {
     if (includes(s.begin(), s.end(), (*i).begin(), (*i).end()))
-      res++;
+      tsol++;
   }
   
-  return res;
+  if (cov) *cov = tcov;
+  if (con) *con = tcon;
+  if (sol) *sol = tsol;
+  return tcov+tcon+tsol;
 }
 
 
@@ -118,16 +121,48 @@ fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
   
   while (coveredStates.size() < ifsm.states.size() || selConstr.size() > 0) {
     int maxi = 0;
-    int maxb = benefit(availCl[0], availConstr[0], coveredStates, selConstr);
-    if (verbose)
-      cout << "benefit for class " << ifsm.formatSetOfStates(availCl[0]) << " = " << maxb << "\n";
+    int maxb, maxcov, maxcon, maxsol;
+    
+    maxb = benefit(&maxcov, &maxcon, &maxsol, availCl[0], availConstr[0], coveredStates, selConstr);
+    if (verbose) {
+      cout << "benefit for class " << ifsm.formatSetOfStates(availCl[0]) << " = ";
+      cout << maxcov;
+      if (maxcon >= 0)
+        cout << '+';
+      cout << maxcon << '+' << maxsol << " = " << maxb << '\n';
+    }
     for (int i=1; i<availCl.size(); i++) {
-      int b = benefit(availCl[i], availConstr[i], coveredStates, selConstr);
-      if (verbose)
-        cout << "benefit for class " << ifsm.formatSetOfStates(availCl[i]) << " = " << b << "\n";
-      if (b >= maxb) {
-        maxb = b;
+      int cov, con, sol;
+      int b = benefit(&cov, &con, &sol, availCl[i], availConstr[i], coveredStates, selConstr);
+      if (verbose) {
+        cout << "benefit for class " << ifsm.formatSetOfStates(availCl[i]) << " = ";
+        cout << cov;
+        if (con >= 0)
+          cout << '+';
+        cout << con << '+' << sol << " = " << b << '\n';
+      }
+      
+      /* Choose one of the states that introduce less constraints among:
+       * {those that solve the most constraints among: {those that cover the 
+       * most states among: {those that have the greatest score}}}. */
+      if (b > maxb) {
+        maxb = b; maxcov = cov; maxsol = sol; maxcon = con;
         maxi = i;
+      } else if (b == maxb) {
+        if (cov > maxcov) {
+          maxcov = cov; maxsol = sol; maxcon = con;
+          maxi = i;
+        } else if (cov == maxcov) {
+          if (sol > maxsol) {
+            maxsol = sol; maxcon = con;
+            maxi = i;
+          } else if (sol == maxsol) {
+            if (con >= maxcon) {
+              maxcon = con;
+              maxi = i;
+            }
+          }
+        }
       }
     }
     if (verbose)
