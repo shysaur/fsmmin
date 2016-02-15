@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <sstream>
+#include <climits>
 
 using namespace std;
 
@@ -120,28 +121,32 @@ fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
   }
   
   while (coveredStates.size() < ifsm.states.size() || selConstr.size() > 0) {
-    int maxi = 0;
-    int maxb, maxcov, maxcon, maxsol;
-    
-    maxb = benefit(&maxcov, &maxcon, &maxsol, availCl[0], availConstr[0], coveredStates, selConstr);
-    if (verbose) {
-      cout << "benefit for class " << ifsm.formatSetOfStates(availCl[0]) << " = ";
-      cout << maxcov;
-      if (maxcon >= 0)
-        cout << '+';
-      cout << maxcon << '+' << maxsol << " = " << maxb << '\n';
-    }
-    for (int i=1; i<availCl.size(); i++) {
+    int maxi = -1;
+    int maxb = INT_MIN, maxcov = INT_MIN, maxcon = INT_MIN, maxsol = INT_MIN;
+
+    for (int i=0; i<availCl.size(); i++) {
       int cov, con, sol;
       int b = benefit(&cov, &con, &sol, availCl[i], availConstr[i], coveredStates, selConstr);
+      
       if (verbose) {
         cout << "benefit for class " << ifsm.formatSetOfStates(availCl[i]) << " = ";
         cout << cov;
         if (con >= 0)
           cout << '+';
-        cout << con << '+' << sol << " = " << b << '\n';
+        cout << con << '+' << sol << " = " << b;
       }
       
+      /* Ignore those states that bring nothing to the table. It's impossible
+       * to ignore all the states because, if that could happen, every con-
+       * straint and every state would be already covered, thus the loop must
+       * have already ended (assuming no bugs elsewhere). */
+      if (cov == 0 && sol == 0) {
+        if (verbose)
+          cout << " (ignored)\n";
+        continue;
+      }
+      cout << '\n';
+        
       /* Choose one of the states that introduce less constraints among:
        * {those that solve the most constraints among: {those that cover the 
        * most states among: {those that have the greatest score}}}. */
@@ -164,6 +169,12 @@ fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose)
           }
         }
       }
+    }
+    if (maxi == -1) {
+      stringstream serr;
+      serr << "The primitive class generation algorithm has a bug because the ";
+      serr << "sets it generated didn't cover the whole machine.";
+      throw runtime_error(serr.str());
     }
     if (verbose)
       cout << "selecting class " << ifsm.formatSetOfStates(availCl[maxi]) << "\n";
