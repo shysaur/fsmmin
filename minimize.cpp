@@ -146,7 +146,8 @@ fsm minimizedFsmFromPrimitiveClasses(equivgraph &equiv, bool verbose, int wcov, 
           cout << " (ignored)\n";
         continue;
       }
-      cout << '\n';
+      if (verbose)
+        cout << '\n';
         
       /* Choose one of the states that introduce less constraints among:
        * {those that solve the most constraints among: {those that cover the 
