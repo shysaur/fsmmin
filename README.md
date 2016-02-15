@@ -16,6 +16,17 @@ A separate tool (`fsmgen`) is included, which generates random finite state
 machines. The machines it generates tend to be completely useless, but they
 can be used to test `fsmmin`.
 
+## Compiling
+
+`fsmmin` and `fsmgen` can be compiled with [gcc](https://gcc.gnu.org/) or 
+[clang](http://clang.llvm.org/) on Linux and OS X, or with 
+[mingw-w64](http://mingw-w64.org/doku.php) on Windows. Just open a shell
+and run `make`.
+
+If you want to compile with Visual Studio on Windows, you'll have to make
+the Visual Studio project yourself. It should work, but you'll need some
+kind of implementation for `getopt_long`.
+
 ## Q & A
 
 ### How did the "prime" heuristic get to this result?
