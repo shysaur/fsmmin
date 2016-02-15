@@ -29,6 +29,7 @@ string stateName(int i)
 
 vector<int> fillEntropyVect(int n, int p) {
   vector<int> res(n);
+  rand();
   int s = rand();
   
   srand(s);
@@ -38,6 +39,14 @@ vector<int> fillEntropyVect(int n, int p) {
     res[i] = rand();
   }
   return res;
+}
+
+
+int range(int n, int min, int max) {
+  long long int n2 = n;
+  n2 *= max - min;
+  n2 /= RAND_MAX;
+  return (int)(n2 + min);
 }
 
 
@@ -51,10 +60,10 @@ void generateRandomFsm(ostream& s, int nstates, int ninput, int noutput, int und
   for (int i=0; i<nstates; i++) {
     s << setw(pad) << stateName(i) << " ";
     for (int j=0; j<ninput; j++) {
-      s << setw(pad) << stateName(states_entr[se++] % (nstates + undef) - undef) << "/";
+      s << setw(pad) << stateName(range(states_entr[se++], -undef, nstates)) << "/";
       for (int k=0; k<noutput; k++) {
-        int t = output_entr[oe++] % (nstates + undef) - undef;
-        s << (char)(t < 0 ? '-' : '0'+(t % 2));
+        int t = range(output_entr[oe++], -(undef * 2), nstates * 2);
+        s << (char)(t < 0 ? '-' : '0'+(t / nstates));
       }
       s << " ";
     }
@@ -80,7 +89,7 @@ void usage(char *me) {
 
 int main(int argc, char *argv[])
 {
-  unsigned nstates=16, ninput=4, noutput=2, undef=1, entropy=7;
+  unsigned nstates=8, ninput=4, noutput=1, undef=8, entropy=60;
   const struct option longopts[] = {
     {"num-states",      required_argument, NULL,     's'},
     {"num-inputs",      required_argument, NULL,     'i'},
