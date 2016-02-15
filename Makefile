@@ -34,5 +34,5 @@ $(OBJDIR)/%.o:	%.cpp $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:	
-	rm -f $(OBJDIR)/*.o fsmmin
+	rm -f $(OBJDIR)/*.o fsmmin fsmgen
 
